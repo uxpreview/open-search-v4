@@ -1982,14 +1982,12 @@ function App() {
 
   // Staged landing intro — plays once per page load, then settles so
   // returning to the landing (e.g. "New conversation") feels instantaneous.
-  // After the cascade finishes, the rail expands from collapsed to its full
-  // width as a final beat.
+  // The rail stays collapsed by default; users expand it via the toggle.
   const [intro, setIntro] = useS(!introPlayed);
   useE(() => {
     if (!intro) return;
     const tEnd = setTimeout(() => {introPlayed = true;setIntro(false);}, 2300);
-    const tExpand = setTimeout(() => setCollapsed(false), 2500);
-    return () => {clearTimeout(tEnd);clearTimeout(tExpand);};
+    return () => {clearTimeout(tEnd);};
   }, []);
 
   // Sync tweak → state
