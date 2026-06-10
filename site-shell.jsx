@@ -1,21 +1,17 @@
-/* === Host website shell — a representative health-system homepage ===
+/* === Host website shell — representative Meridian Health pages ===
    The "Search" affordances (nav button + hero search bar) call onOpenSearch,
-   which opens the full search experience in a modal overlay (see search-modal.jsx). */
+   which opens the full search experience in a modal overlay (see search-modal.jsx).
+
+   The site renders one of several PAGES (home, cardiology, …). Each page also
+   defines a `search` context (heading + suggestions) that the modal's landing
+   reads via window.SEARCH_CONTEXT, so the same search tool feels contextual to
+   the page you opened it from. */
 
 const SITE_IS_MAC = typeof navigator !== 'undefined'
   && /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
 const SITE_SHORTCUT = SITE_IS_MAC ? '⌘K' : 'Ctrl K';
 
 const SITE_NAV_LINKS = ['Find care', 'Locations', 'Providers', 'Services', 'Patients & visitors'];
-
-const SITE_SERVICES = [
-  { icon: 'Stethoscope', name: 'Primary care', desc: 'Annual visits, screenings, and everyday care for the whole family.' },
-  { icon: 'Clock', name: 'Urgent care', desc: 'Walk-in care for non-emergencies, open early until late, 7 days a week.' },
-  { icon: 'Heart', name: 'Cardiology', desc: 'Heart and vascular specialists with same-week appointments.' },
-  { icon: 'Brain', name: 'Neurology', desc: 'Expert evaluation for headaches, memory, and nerve conditions.' },
-  { icon: 'Bone', name: 'Orthopedics', desc: 'Joint, bone, and sports-injury care from diagnosis to recovery.' },
-  { icon: 'Video', name: 'Virtual visits', desc: 'See a provider from home, usually within the hour.' },
-];
 
 const SITE_STATS = [
   { value: '40+', label: 'Locations nearby' },
@@ -24,7 +20,68 @@ const SITE_STATS = [
   { value: '24/7', label: 'Nurse line' },
 ];
 
-function SiteSearchTrigger({ onOpenSearch, triggerRef, variant }) {
+const HOME_SERVICES = [
+  { icon: 'Stethoscope', name: 'Primary care', desc: 'Annual visits, screenings, and everyday care for the whole family.' },
+  { icon: 'Clock', name: 'Urgent care', desc: 'Walk-in care for non-emergencies, open early until late, 7 days a week.' },
+  { icon: 'Heart', name: 'Cardiology', desc: 'Heart and vascular specialists with same-week appointments.', href: '/cardiology' },
+  { icon: 'Brain', name: 'Neurology', desc: 'Expert evaluation for headaches, memory, and nerve conditions.' },
+  { icon: 'Bone', name: 'Orthopedics', desc: 'Joint, bone, and sports-injury care from diagnosis to recovery.' },
+  { icon: 'Video', name: 'Virtual visits', desc: 'See a provider from home, usually within the hour.' },
+];
+
+const CARDIO_SERVICES = [
+  { icon: 'Heart', name: 'Preventive cardiology', desc: 'Risk assessment and heart-healthy plans to stay ahead of disease.' },
+  { icon: 'Clock', name: 'Cardiac stress testing', desc: 'Treadmill and imaging stress tests to evaluate how your heart performs.' },
+  { icon: 'Video', name: 'Echocardiography', desc: 'Ultrasound imaging to see how your heart pumps and how its valves work.' },
+  { icon: 'Shield', name: 'Electrophysiology', desc: 'Diagnosis and treatment of arrhythmias and heart-rhythm disorders.' },
+  { icon: 'Stethoscope', name: 'Heart failure clinic', desc: 'Specialized, ongoing care to manage heart failure and protect quality of life.' },
+  { icon: 'Person', name: 'Cardiac rehabilitation', desc: 'Supervised programs to rebuild strength and confidence after a cardiac event.' },
+];
+
+const PAGES = {
+  home: {
+    title: 'Meridian Health — Search',
+    breadcrumb: null,
+    hero: {
+      eyebrow: 'Welcome to Meridian Health',
+      title: 'Find care that fits your life.',
+      sub: 'Search providers, book a visit, or get answers about symptoms and conditions — all in one place.',
+      placeholder: 'Search providers, conditions, locations…',
+      primaryCta: { icon: 'Stethoscope', label: 'Find a doctor' },
+    },
+    section: { title: 'Care for every need', cards: HOME_SERVICES, cta: 'Find a provider' },
+    band: { title: 'Not sure where to start?', sub: 'Describe what is going on and we will point you to the right care.' },
+    search: { heading: null, suggestions: null },
+  },
+  cardiology: {
+    title: 'Cardiology — Meridian Health',
+    breadcrumb: 'Cardiology',
+    hero: {
+      eyebrow: 'Cardiology at Meridian',
+      title: 'Heart and vascular care, close to home.',
+      sub: 'From prevention to advanced treatment, our cardiologists help you understand your heart and stay ahead of disease.',
+      placeholder: 'Ask about cardiology at Meridian…',
+      primaryCta: { icon: 'Heart', label: 'Find a cardiologist' },
+    },
+    section: { title: 'Cardiology services', cards: CARDIO_SERVICES, cta: 'Learn more' },
+    band: { title: 'Have a heart-health question?', sub: 'Ask Meridian for answers about symptoms, screenings, and our cardiology team.' },
+    search: {
+      heading: 'Want to learn more about Cardiology at Meridian?',
+      suggestions: [
+        'Find a cardiologist accepting new patients',
+        'What happens during a cardiac stress test?',
+        'Heart-healthy screenings I should consider',
+        'Warning signs of heart disease to watch for',
+      ],
+    },
+  },
+};
+
+const CURRENT_PAGE = (typeof window !== 'undefined' && window.PAGE && PAGES[window.PAGE]) ? window.PAGE : 'home';
+// The modal's landing reads this to render a context-relevant heading + suggestions.
+if (typeof window !== 'undefined') window.SEARCH_CONTEXT = PAGES[CURRENT_PAGE].search;
+
+function SiteSearchTrigger({ onOpenSearch, triggerRef, variant, placeholder }) {
   if (variant === 'hero') {
     return (
       <button
@@ -33,8 +90,8 @@ function SiteSearchTrigger({ onOpenSearch, triggerRef, variant }) {
         onClick={onOpenSearch}
         aria-haspopup="dialog"
         aria-label="Open search">
-        <span className="site-herosearch__icon"><Icon.Search /></span>
-        <span className="site-herosearch__text">Search providers, conditions, locations…</span>
+        <span className="site-herosearch__icon"><Icon.SearchAI /></span>
+        <span className="site-herosearch__text">{placeholder}</span>
         <span className="site-herosearch__kbd">{SITE_SHORTCUT}</span>
       </button>
     );
@@ -47,18 +104,21 @@ function SiteSearchTrigger({ onOpenSearch, triggerRef, variant }) {
       onClick={onOpenSearch}
       aria-haspopup="dialog"
       aria-label="Open search">
-      <span className="site-nav__search-icon"><Icon.Search /></span>
+      <span className="site-nav__search-icon"><Icon.SearchAI /></span>
       <span className="site-nav__search-label">Search</span>
     </button>
   );
 }
 
 function SiteShell({ onOpenSearch, triggerRef }) {
+  const page = PAGES[CURRENT_PAGE];
+  const PrimaryCtaGlyph = Icon[page.hero.primaryCta.icon];
+
   return (
     <div className="site">
       <header className="site-nav">
         <div className="site-nav__inner">
-          <a className="site-nav__brand" href="#" onClick={(e) => e.preventDefault()}>
+          <a className="site-nav__brand" href="/">
             <span className="site-nav__logo" aria-hidden="true"><Icon.Shield /></span>
             <span className="site-nav__name">Meridian Health</span>
           </a>
@@ -75,18 +135,23 @@ function SiteShell({ onOpenSearch, triggerRef }) {
       </header>
 
       <main className="site-main">
+        {page.breadcrumb &&
+          <nav className="site-breadcrumb" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{page.breadcrumb}</span>
+          </nav>
+        }
+
         <section className="site-hero">
           <div className="site-hero__inner">
-            <p className="site-hero__eyebrow">Welcome to Meridian Health</p>
-            <h1 className="site-hero__title serif">Find care that fits your life.</h1>
-            <p className="site-hero__sub">
-              Search providers, book a visit, or get answers about symptoms and conditions —
-              all in one place.
-            </p>
-            <SiteSearchTrigger onOpenSearch={onOpenSearch} variant="hero" />
+            <p className="site-hero__eyebrow">{page.hero.eyebrow}</p>
+            <h1 className="site-hero__title serif">{page.hero.title}</h1>
+            <p className="site-hero__sub">{page.hero.sub}</p>
+            <SiteSearchTrigger onOpenSearch={onOpenSearch} variant="hero" placeholder={page.hero.placeholder} />
             <div className="site-hero__ctas">
               <button type="button" className="site-btn site-btn--primary" onClick={onOpenSearch}>
-                <Icon.Stethoscope /> Find a doctor
+                {PrimaryCtaGlyph ? <PrimaryCtaGlyph /> : null} {page.hero.primaryCta.label}
               </button>
               <button type="button" className="site-btn site-btn--ghost" onClick={onOpenSearch}>
                 <Icon.Calendar /> Book a visit
@@ -97,22 +162,27 @@ function SiteShell({ onOpenSearch, triggerRef }) {
 
         <section className="site-services" aria-label="Services">
           <div className="site-section__head">
-            <h2 className="site-section__title">Care for every need</h2>
+            <h2 className="site-section__title">{page.section.title}</h2>
             <a href="#" className="site-section__link" onClick={(e) => { e.preventDefault(); onOpenSearch(); }}>
               Browse all services <Icon.ArrowRight />
             </a>
           </div>
           <div className="site-services__grid">
-            {SITE_SERVICES.map((s) => {
+            {page.section.cards.map((s) => {
               const Glyph = Icon[s.icon];
-              return (
-                <button key={s.name} type="button" className="site-card" onClick={onOpenSearch}>
+              const inner = (
+                <>
                   <span className="site-card__icon" aria-hidden="true">{Glyph ? <Glyph /> : null}</span>
                   <span className="site-card__name">{s.name}</span>
                   <span className="site-card__desc">{s.desc}</span>
-                  <span className="site-card__cta">Find a provider <Icon.ArrowRight /></span>
-                </button>
+                  <span className="site-card__cta">
+                    {s.href ? 'Explore' : page.section.cta} <Icon.ArrowRight />
+                  </span>
+                </>
               );
+              return s.href
+                ? <a key={s.name} href={s.href} className="site-card">{inner}</a>
+                : <button key={s.name} type="button" className="site-card" onClick={onOpenSearch}>{inner}</button>;
             })}
           </div>
         </section>
@@ -129,11 +199,11 @@ function SiteShell({ onOpenSearch, triggerRef }) {
         <section className="site-band">
           <div className="site-band__inner">
             <div>
-              <h2 className="site-band__title serif">Not sure where to start?</h2>
-              <p className="site-band__sub">Describe what's going on and we'll point you to the right care.</p>
+              <h2 className="site-band__title serif">{page.band.title}</h2>
+              <p className="site-band__sub">{page.band.sub}</p>
             </div>
             <button type="button" className="site-btn site-btn--primary site-btn--lg" onClick={onOpenSearch}>
-              <Icon.Search /> Search Meridian
+              <Icon.SearchAI /> Ask Meridian
             </button>
           </div>
         </section>
@@ -149,7 +219,7 @@ function SiteShell({ onOpenSearch, triggerRef }) {
             <div className="site-footer__col">
               <h3>Care</h3>
               <a href="#" onClick={(e) => e.preventDefault()}>Find a doctor</a>
-              <a href="#" onClick={(e) => e.preventDefault()}>Urgent care</a>
+              <a href="/cardiology">Cardiology</a>
               <a href="#" onClick={(e) => e.preventDefault()}>Virtual visits</a>
             </div>
             <div className="site-footer__col">

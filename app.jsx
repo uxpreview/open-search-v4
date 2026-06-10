@@ -483,6 +483,12 @@ function DefaultSuggestions({ items, onPick }) {
 function Landing({ onAsk, draft, setDraft, loggedIn, onSignIn, intro, onPickAgent }) {
   const [focused, setFocused] = useS(false);
   const [scope, setScope] = useS(DEFAULT_SCOPE);
+  // Page-contextual landing (set by site-shell.jsx via window.SEARCH_CONTEXT)
+  const searchCtx = (typeof window !== 'undefined' && window.SEARCH_CONTEXT) || null;
+  const landingHeading = (searchCtx && searchCtx.heading) || 'How can we help you feel better?';
+  const defaultItems = (searchCtx && searchCtx.suggestions && scope.id === DEFAULT_SCOPE.id)
+    ? searchCtx.suggestions
+    : scope.suggestions;
   const wrapRef = useR(null);
   const tabsRef = useR(null);
   const mountedWithIntroRef = useR(intro);
@@ -516,8 +522,7 @@ function Landing({ onAsk, draft, setDraft, loggedIn, onSignIn, intro, onPickAgen
           <span className="landing__banner-arrow">{Icon.ArrowRight()}</span>
         </button>
       }
-      <h1 className="landing__title">How can we help you feel better?
-      </h1>
+      <h1 className="landing__title">{landingHeading}</h1>
       <div className="search-tabs" role="tablist" ref={tabsRef}>
         {SCOPES.map((s) => {
           const active = scope.id === s.id;
@@ -553,7 +558,7 @@ function Landing({ onAsk, draft, setDraft, loggedIn, onSignIn, intro, onPickAgen
           onSelect={(q) => {setFocused(false);onAsk(q, scope);}}
           onFillDraft={(q) => setDraft(q)} /> :
         !hasDraft &&
-        <DefaultSuggestions items={scope.suggestions} onPick={(q) => setDraft(q)} />
+        <DefaultSuggestions items={defaultItems} onPick={(q) => setDraft(q)} />
         }
       </div>
     </div>);
