@@ -41,16 +41,17 @@ function SearchModal({ open, onClose }) {
       aria-label="Search Meridian Health"
       aria-hidden={open ? undefined : true}
       onClick={onClose}>
-      <button
-        className="search-modal__close"
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
-        aria-label="Close search">
-        <Icon.X />
-        <span className="search-modal__close-hint">Esc</span>
-      </button>
-      <div className="search-modal__panel" ref={panelRef} onClick={(e) => e.stopPropagation()}>
-        <div className="app-modal-mount in-modal">
-          <App />
+      <div className="search-modal__frame" onClick={(e) => e.stopPropagation()}>
+        <button
+          className="search-modal__close"
+          onClick={onClose}
+          aria-label="Close search">
+          <Icon.X />
+        </button>
+        <div className="search-modal__panel" ref={panelRef}>
+          <div className="app-modal-mount in-modal">
+            <App />
+          </div>
         </div>
       </div>
     </div>

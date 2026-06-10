@@ -791,8 +791,8 @@ function LeftRail({ history, onNewConv, onPickHistory, collapsed, onToggleCollap
       {/* Header: brand + collapse control on same row (expanded); stacked column (collapsed) */}
       <div className="rail__header">
         <button className="rail__brand" onClick={onNewConv} data-rail-tip="Home">
-          <span className="rail__brand-mark"><AlmaMark /></span>
-          <span className="rail__text">Ask [System]</span>
+          <span className="rail__brand-mark"><Icon.Shield /></span>
+          <span className="rail__text">Ask Meridian</span>
         </button>
         <button className="rail__icon-btn" data-rail-tip={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={onToggleCollapsed}>
           {Icon.Sidebar()}

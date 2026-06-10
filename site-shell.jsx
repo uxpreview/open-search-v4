@@ -49,7 +49,6 @@ function SiteSearchTrigger({ onOpenSearch, triggerRef, variant }) {
       aria-label="Open search">
       <span className="site-nav__search-icon"><Icon.Search /></span>
       <span className="site-nav__search-label">Search</span>
-      <kbd className="site-nav__search-kbd">{SITE_SHORTCUT}</kbd>
     </button>
   );
 }
@@ -70,9 +69,6 @@ function SiteShell({ onOpenSearch, triggerRef }) {
           </nav>
           <div className="site-nav__actions">
             <SiteSearchTrigger onOpenSearch={onOpenSearch} triggerRef={triggerRef} />
-            <a className="site-nav__phone" href="#" onClick={(e) => e.preventDefault()}>
-              <Icon.Phone /><span>1-800-MERIDIAN</span>
-            </a>
             <button type="button" className="site-nav__cta" onClick={onOpenSearch}>Get care now</button>
           </div>
         </div>
